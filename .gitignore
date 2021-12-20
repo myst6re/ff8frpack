@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Qt Creator files
+*.user
+
+# System files
+.DS_Store

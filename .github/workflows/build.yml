@@ -1,0 +1,130 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+  create: null
+
+jobs:
+  main_build:
+    name: ${{ matrix.package_suffix }} Qt ${{ matrix.qt }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        qt:
+          - 6.2.0
+        os:
+          - windows-latest
+        build_type:
+          - Release
+        include:
+        - aqt_version: '==2.0.0'
+          qt_tools: desktop,tools_ninja,qt.tools.ninja
+        - os: windows-latest
+          package_extension: 'zip'
+          package_suffix: 'win64'
+          win_arch: "x64"
+          qt_arch: win64_msvc2019_64
+          qt_tools: desktop,tools_ninja,qt.tools.ninja desktop,tools_cmake,qt.tools.cmake.win64
+    env:
+      qt_installation_path: ${{ github.workspace }}
+      ff8frpack_build_path: ${{ github.workspace }}/../build-ff8frpack
+      ff8frpack_installation_path: ${{ github.workspace }}/../installation-ff8frpack
+      ff8frpack_appbundle_path: ${{ github.workspace }}/../appbundle-ff8frpack
+      CMAKE_GENERATOR: Ninja
+      CMAKE_BUILD_TYPE: ${{ matrix.build_type }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.qt_installation_path }}/Qt
+        key: ${{ runner.os }}${{ matrix.win_arch }}-qt-ninja-cmake-${{ matrix.qt }}
+
+    - name: Env Script (Windows)
+      uses: ilammy/msvc-dev-cmd@v1
+      if: runner.os == 'Windows'
+      with:
+        arch: ${{ matrix.win_arch }}
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.14.0
+      with:
+       aqtversion: ${{ matrix.aqt_version }}
+       dir: ${{ env.qt_installation_path }}
+       arch: ${{ matrix.qt_arch }}
+       version: ${{ matrix.qt }}
+       cached: ${{ steps.cache-qt.outputs.cache-hit }}
+       tools: ${{ matrix.qt_tools }}
+       modules: ${{ matrix.qt_modules }}
+
+    - name: Configure env
+      shell: bash
+      run: |
+        QT_MAJOR_VERSION=$(echo "${{ matrix.qt }}" | sed -E 's/^([0-9]+)\..*/\1/')
+        QT_DIR=$(eval 'echo $Qt'"$QT_MAJOR_VERSION"'_DIR')
+        echo "$IQTA_TOOLS/Ninja" >> $GITHUB_PATH
+        echo "$IQTA_TOOLS/CMake_64/bin" >> $GITHUB_PATH
+        echo "QT_MAJOR_VERSION=$QT_MAJOR_VERSION" >> $GITHUB_ENV
+        echo "QT_DIR=$QT_DIR" >> $GITHUB_ENV
+
+    - name: Build FF8.fr's Pack
+      id: main_build
+      run: |
+        cmake -B ${{ env.ff8frpack_build_path }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_INSTALL_PREFIX=${{ env.ff8frpack_installation_path }}
+        cmake --build ${{ env.ff8frpack_build_path }} --target install -j3
+
+    - name: CPack
+      run: cpack
+      working-directory: ${{ env.ff8frpack_build_path }}
+
+    - name: Prepare Upload
+      shell: bash
+      run: mv ../build-ff8frpack/*.${{ matrix.package_extension }} ff8frpack-continuous-${{ matrix.package_suffix }}.${{ matrix.package_extension }}
+
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        path: ${{ github.workspace }}/ff8frpack-continuous-*.*
+
+  pre_release_assets:
+    name: Pre-Release
+    needs: main_Build
+    if: github.ref == 'refs/heads/develop'
+    concurrency: pre-release-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Files
+      uses: actions/download-artifact@v2
+
+    - name: Deploy Package
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+       repo_token: "${{ secrets.GITHUB_TOKEN }}"
+       automatic_release_tag: "continuous"
+       prerelease: true
+       title: "Continuous Build"
+       files: artifact/*
+
+  release_assets:
+    name: Release
+    needs: main_Build
+    if: github.event.ref_type == 'tag'
+    concurrency: release-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Files
+      uses: actions/download-artifact@v2
+
+    - name: Deploy Package
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+       repo_token: "${{ secrets.GITHUB_TOKEN }}"
+       prerelease: false
+       title: ${{ github.event.ref }}
+       files: artifact/*
