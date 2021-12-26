@@ -15,38 +15,25 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
-#include <QLibraryInfo>
+#pragma once
 
-#include "ffnxinstallation.h"
-#include "window.h"
-#include "wizard.h"
+#include <QDir>
+#include <QObject>
 
-int main(int argc, char *argv[])
+#include "zip.h"
+#include "installprogression.h"
+
+class Package : public QObject
 {
-    QApplication a(argc, argv);
-
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
+    Q_OBJECT
+public:
+    Package(QIODevice *in, QObject *parent = nullptr);
+    bool unzip(const QDir &dir, quint32 crc);
+    const QString &errorString() const {
+        return _unzip.errorString();
     }
-
-    FFNxInstallation ffnxInstallation = FFNxInstallation::localInstallation();
-    if (true || !ffnxInstallation.isValid()) {
-        Wizard w;
-        w.show();
-
-        return a.exec();
-    }
-
-    Window w(ffnxInstallation);
-    w.show();
-
-    return a.exec();
-}
+signals:
+    void progress(qint64 value, qint64 max);
+private:
+    UnZip _unzip;
+};

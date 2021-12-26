@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.15)
 
-project(FF8frPack VERSION 0.1 LANGUAGES CXX
+project(FF8frPack VERSION 0.1 LANGUAGES CXX C
     DESCRIPTION "FF8.fr's Pack"
     HOMEPAGE_URL "https://github.com/myst6re/ff8frpackconfig"
 )
@@ -40,19 +40,41 @@ else()
     add_compile_options(-Wall -Wextra -pedantic)
 endif()
 
+add_subdirectory(dependencies)
+
 find_package(QT NAMES Qt6 COMPONENTS Network Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Network Widgets LinguistTools REQUIRED)
 
+set(MINIZIP_SOURCE_PATH "${zlib_SOURCE_DIR}/contrib")
+
+set(MINIZIP_SOURCES
+    src/minizip/ioapi.c
+    src/minizip/ioapi.h
+    src/minizip/unzip.c
+    src/minizip/unzip.h
+)
+
+list(TRANSFORM MINIZIP_SOURCES REPLACE "src/(.+)" "${zlib_SOURCE_DIR}/contrib/\\1" OUTPUT_VARIABLE MINIZIP_SOURCES_REPO)
+file(COPY ${MINIZIP_SOURCES_REPO} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/src/minizip)
+
 set(PROJECT_SOURCES
     src/main.cpp
+    src/ff8installation.cpp
+    src/ff8installation.h
     src/ffnxconfig.cpp
     src/ffnxconfig.h
     src/ffnxinstallation.cpp
     src/ffnxinstallation.h
+    src/geturl.cpp
+    src/geturl.h
     src/helpwidget.cpp
     src/helpwidget.h
     src/installprogression.cpp
     src/installprogression.h
+    src/package.cpp
+    src/package.h
+    src/provisionner.cpp
+    src/provisionner.h
     src/window.cpp
     src/window.h
     src/wizard.cpp
@@ -61,23 +83,32 @@ set(PROJECT_SOURCES
     src/wizardpages/wizardpageinstall.h
     src/wizardpages/wizardpageintro.cpp
     src/wizardpages/wizardpageintro.h
+    src/zip.cpp
+    src/zip.h
 )
 
 qt_add_executable(FF8frPack
-    MANUAL_FINALIZATION
-    ${PROJECT_SOURCES} ${QM_FILES}
+    MANUAL_FINALIZATION WIN32
+    ${PROJECT_SOURCES} ${MINIZIP_SOURCES} ${QM_FILES}
 )
 
 target_link_libraries(FF8frPack PRIVATE
     Qt::Network
     Qt::Widgets
+    zlibstatic
     tomlplusplus::tomlplusplus
 )
 
-set_target_properties(FF8frPack PROPERTIES OUTPUT_NAME "FF8Fr Pack")
+set_target_properties(FF8frPack PROPERTIES
+    OUTPUT_NAME "FF8.Fr Pack"
+)
+set_property(TARGET FF8frPack
+    APPEND_STRING PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\""
+)
+
+target_include_directories(FF8frPack PRIVATE ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
 
 add_subdirectory(lang)
-add_subdirectory(dependencies)
 
 # Build qrc file automatically
 qt_add_resources(FF8frPack ff8frpacklang PREFIX /i18n/ BASE "${CMAKE_CURRENT_BINARY_DIR}/lang" FILES ${QM_FILES})

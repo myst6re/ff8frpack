@@ -17,6 +17,7 @@
  ****************************************************************************/
 #include "wizardpageintro.h"
 
+#include <QCoreApplication>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
@@ -27,8 +28,8 @@
 
 #include "../wizard.h"
 
-WizardPageIntro::WizardPageIntro(const FFNxInstallation &installation, QWidget *parent) :
-    QWizardPage(parent), _installation(installation)
+WizardPageIntro::WizardPageIntro(QWidget *parent) :
+    QWizardPage(parent), _installations(FF8Installation::installations())
 {
     setTitle(tr("Installation"));
     setCommitPage(true);
@@ -53,7 +54,13 @@ WizardPageIntro::WizardPageIntro(const FFNxInstallation &installation, QWidget *
 void WizardPageIntro::initializePage()
 {
     if (_lineEdit->text().isEmpty()) {
-        _lineEdit->setText(_installation.dirName());
+        if (_installations.contains(FF8Installation::Steam)) {
+            _lineEdit->setText(_installations[FF8Installation::Steam].appPath());
+        } else if (_installations.contains(FF8Installation::Standard)) {
+            _lineEdit->setText(_installations[FF8Installation::Standard].appPath());
+        } else {
+            _lineEdit->setText(QCoreApplication::applicationDirPath());
+        }
     }
 }
 

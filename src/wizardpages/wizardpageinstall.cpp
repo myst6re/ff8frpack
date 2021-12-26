@@ -24,21 +24,23 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-#include "../ffnxinstallation.h"
+#include "../provisionner.h"
 #include "../wizard.h"
 
 WizardPageInstall::WizardPageInstall(QWidget *parent) :
-    QWizardPage(parent), _isComplete(false)
+    QWizardPage(parent), _isComplete(false), _installation(QString())
 {
     setTitle(tr("Installation"));
 
     _timer = new QTimer(this);
 
     _progressBar = new QProgressBar(this);
-    _progressBar->setRange(0, 10000);
+    _progressBar->setRange(0, 1000);
+
+    _label = new QLabel(tr("Installation in progress..."));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(new QLabel(tr("Installation in progress...")));
+    layout->addWidget(_label);
     layout->addWidget(_progressBar);
     layout->addStretch(1);
 
@@ -47,8 +49,13 @@ WizardPageInstall::WizardPageInstall(QWidget *parent) :
 
 void WizardPageInstall::processEvents()
 {
+    qDebug() << "WizardPageInstall::processEvents" << _value;
     if (_progressBar->value() != _value) {
         _progressBar->setValue(_value);
+    }
+
+    if (!_message.isEmpty()) {
+        _label->setText(_message);
     }
 
     QCoreApplication::processEvents();
@@ -61,8 +68,25 @@ void WizardPageInstall::initializePage()
     _timer->start(700);
 
     QString dirName = field(FIELD_NAME(FieldPath)).toString();
-    FFNxInstallation(dirName).provision(this);
+    _installation = FFNxInstallation(dirName);
+    Provisionner *provisionner = new Provisionner(_installation, this);
 
+    connect(provisionner, &Provisionner::progress, this, &WizardPageInstall::setProgression);
+    connect(provisionner, &Provisionner::finished, this, &WizardPageInstall::setFinished);
+
+    provisionner->startProvision();
+}
+
+void WizardPageInstall::setProgression(qint64 value, qint64 max)
+{
+    _value = value * 1000 / max;
+    qDebug() << "WizardPageInstall::setProgression" << value << max << _value;
+}
+
+void WizardPageInstall::setFinished(const QString &error)
+{
+    qDebug() << "WizardPageInstall::setFinished" << error;
+    _message = error;
     _timer->stop();
 
     // Ensure progress bar is up to date
@@ -77,29 +101,11 @@ bool WizardPageInstall::isComplete() const
     return _isComplete;
 }
 
-bool WizardPageInstall::observerWasCanceled() const
-{
-    return false;
-}
-
-void WizardPageInstall::setObserverMaximum(int max)
-{
-    _max = max;
-}
-
-void WizardPageInstall::setObserverValue(int value)
-{
-    _value = value * 10000 / _max;
-}
-
-void WizardPageInstall::setObserverMessage(const QString &message)
-{
-    _message = message;
-}
-
+/*
 bool WizardPageInstall::observerRetry(const QString &message)
 {
     QMessageBox::StandardButton response =  QMessageBox::question(this, tr("Installation Error"), message);
 
     return QMessageBox::Yes == response;
 }
+*/

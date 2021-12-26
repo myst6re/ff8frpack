@@ -17,15 +17,32 @@
  ****************************************************************************/
 #include "wizard.h"
 
+#include <QProcess>
+#include <QStringList>
+#include <QVariant>
+
 #include "wizardpages/wizardpageintro.h"
 #include "wizardpages/wizardpageinstall.h"
+#include "window.h"
 
-Wizard::Wizard(const FFNxInstallation &installation, QWidget *parent)
-    : QWizard(parent), _installation(installation)
+Wizard::Wizard(QWidget *parent)
+    : QWizard(parent)
 {
     setWindowTitle("FF8.Fr's Pack");
-    setPage(PageIntro, new WizardPageIntro(installation, this));
+    setPage(PageIntro, new WizardPageIntro(this));
     setPage(PageInstall, new WizardPageInstall(this));
-    setOptions(options() | QWizard::NoBackButtonOnStartPage | QWizard::NoBackButtonOnLastPage);
+    setOptions(QWizard::WizardOptions());
     setButtonText(QWizard::CommitButton, tr("Install"));
+}
+
+void Wizard::accept()
+{
+    QString dirName = field(FIELD_NAME(FieldPath)).toString();
+    FFNxInstallation installation(dirName);
+
+    if (installation.isValid()) {
+        QProcess::startDetached(installation.ff8frPackFileName(), QStringList(), dirName);
+    }
+
+    QWizard::accept();
 }

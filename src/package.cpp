@@ -15,38 +15,43 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
-#include <QLibraryInfo>
+#include "package.h"
 
-#include "ffnxinstallation.h"
-#include "window.h"
-#include "wizard.h"
+#include <zlib.h>
 
-int main(int argc, char *argv[])
+Package::Package(QIODevice *in, QObject *parent) :
+    QObject(parent), _unzip(in)
 {
-    QApplication a(argc, argv);
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
+}
+
+bool Package::unzip(const QDir &dir, quint32 crc)
+{
+    _unzip.setOutDirectory(dir);
+    if (!_unzip.open()) {
+        return false;
     }
 
-    FFNxInstallation ffnxInstallation = FFNxInstallation::localInstallation();
-    if (true || !ffnxInstallation.isValid()) {
-        Wizard w;
-        w.show();
-
-        return a.exec();
+    if (!_unzip.checkZippedFileIntegrity(crc)) {
+        return false;
     }
 
-    Window w(ffnxInstallation);
-    w.show();
+    qint64 max = _unzip.size();
 
-    return a.exec();
+    UnZip::ReadError r;
+    do {
+        emit progress(_unzip.pos(), max);
+
+        r = _unzip.read();
+    } while (r == UnZip::Ok);
+
+    _unzip.close();
+
+    if (r == UnZip::Error) {
+        return false;
+    }
+
+    emit progress(max, max);
+
+    return true;
 }

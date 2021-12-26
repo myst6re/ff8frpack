@@ -17,9 +17,10 @@
  ****************************************************************************/
 #pragma once
 
+#include <QMap>
 #include <QWizardPage>
 
-#include "../ffnxinstallation.h"
+#include "../ff8installation.h"
 
 class QLineEdit;
 
@@ -27,13 +28,13 @@ class WizardPageIntro : public QWizardPage
 {
     Q_OBJECT
 public:
-    WizardPageIntro(const FFNxInstallation &installation, QWidget *parent = nullptr);
+    WizardPageIntro(QWidget *parent = nullptr);
     void initializePage() override;
     bool validatePage() override;
 private slots:
     void chooseFile();
 private:
-    const FFNxInstallation &_installation;
+    QMap<FF8Installation::Type, FF8Installation> _installations;
 
     QLineEdit *_lineEdit;
 };
