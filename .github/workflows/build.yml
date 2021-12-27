@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         qt:
-          - 6.2.0
+          - 6.2.2
         os:
           - windows-latest
         build_type:
@@ -24,13 +24,14 @@ jobs:
         - aqt_version: '==2.0.0'
           qt_tools: desktop,tools_ninja,qt.tools.ninja
         - os: windows-latest
-          package_extension: 'zip'
-          package_suffix: 'win64'
-          win_arch: "x64"
+          package_extension: zip
+          package_suffix: win64
+          win_arch: x64
           qt_arch: win64_msvc2019_64
           qt_tools: desktop,tools_ninja,qt.tools.ninja desktop,tools_cmake,qt.tools.cmake.win64
     env:
       qt_installation_path: ${{ github.workspace }}
+      qt_static_archive_path: ${{ github.workspace }}/../installation-qt-static
       ff8frpack_build_path: ${{ github.workspace }}/../build-ff8frpack
       ff8frpack_installation_path: ${{ github.workspace }}/../installation-ff8frpack
       ff8frpack_appbundle_path: ${{ github.workspace }}/../appbundle-ff8frpack
@@ -38,6 +39,20 @@ jobs:
       CMAKE_BUILD_TYPE: ${{ matrix.build_type }}
     steps:
     - uses: actions/checkout@v2
+
+    - name: Download Qt static
+      uses: i3h/download-release-asset@v1
+      with:
+        owner: martinrotter
+        repo: qt-minimalistic-builds
+        tag: ${{ matrix.qt }}-static
+        file: qt-${{ matrix.qt }}-static-msvc2019-x86_64.7z
+        path: ${{ env.qt_static_archive_path }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Unarchive Qt static
+      run: 7z x ${{ env.qt_static_archive_path }}/qt-${{ matrix.qt }}-static-msvc2019-x86_64.7z
+      working-directory: ${{ env.qt_static_archive_path }}
 
     - name: Cache Qt
       id: cache-qt
@@ -66,6 +81,9 @@ jobs:
     - name: Configure env
       shell: bash
       run: |
+        Qt6_DIR="${{ env.qt_static_archive_path }}/qt-${{ matrix.qt }}-static-msvc2019-x86_64"
+        ls "$Qt6_DIR"
+        echo "Qt6_DIR=$Qt6_DIR" >> $GITHUB_ENV
         QT_MAJOR_VERSION=$(echo "${{ matrix.qt }}" | sed -E 's/^([0-9]+)\..*/\1/')
         QT_DIR=$(eval 'echo $Qt'"$QT_MAJOR_VERSION"'_DIR')
         echo "$IQTA_TOOLS/Ninja" >> $GITHUB_PATH

@@ -21,10 +21,11 @@
 #include <QDir>
 #include <QFile>
 
+#include "geturl.h"
+
 FFNxInstallation::FFNxInstallation(const QString &dirName) :
     _dirName(dirName)
 {
-
 }
 
 QString FFNxInstallation::configFileName() const
@@ -37,22 +38,14 @@ const QString &FFNxInstallation::dirName() const
     return _dirName;
 }
 
+QString FFNxInstallation::ff8frPackFileName() const
+{
+    return QString("%1/FF8.fr Pack.exe").arg(_dirName);
+}
+
 bool FFNxInstallation::isValid() const
 {
     return QFile::exists(configFileName());
-}
-
-bool FFNxInstallation::provision(InstallProgression *progression) const
-{
-    if (nullptr != progression) {
-        progression->setObserverMaximum(100);
-    }
-
-    if (nullptr != progression) {
-        progression->setObserverValue(100);
-    }
-
-    return false;
 }
 
 FFNxInstallation FFNxInstallation::localInstallation()
@@ -70,11 +63,4 @@ FFNxInstallation FFNxInstallation::localInstallation()
     }
 
     return currentDir;
-}
-
-FFNxInstallation FFNxInstallation::autoDetectInstallation()
-{
-    // TODO: from regedit, from stream, etc...
-
-    return localInstallation();
 }

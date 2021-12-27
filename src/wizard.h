@@ -42,11 +42,11 @@ public:
         FieldPath,
     };
 
-    explicit Wizard(const FFNxInstallation &installation, QWidget *parent = nullptr);
+    explicit Wizard(QWidget *parent = nullptr);
 
 signals:
 
-private:
-    const FFNxInstallation &_installation;
+protected:
+    void accept() override;
 };
 

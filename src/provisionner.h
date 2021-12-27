@@ -15,38 +15,33 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
-#include <QLibraryInfo>
+#pragma once
+
+#include <QDir>
+#include <QMap>
+#include <QObject>
 
 #include "ffnxinstallation.h"
-#include "window.h"
-#include "wizard.h"
+#include "installprogression.h"
 
-int main(int argc, char *argv[])
+class QIODevice;
+class GetUrl;
+
+class Provisionner : public QObject
 {
-    QApplication a(argc, argv);
-
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }
-
-    FFNxInstallation ffnxInstallation = FFNxInstallation::localInstallation();
-    if (true || !ffnxInstallation.isValid()) {
-        Wizard w;
-        w.show();
-
-        return a.exec();
-    }
-
-    Window w(ffnxInstallation);
-    w.show();
-
-    return a.exec();
-}
+    Q_OBJECT
+public:
+    Provisionner(const FFNxInstallation &installation, QObject *parent = nullptr);
+    bool startProvision();
+signals:
+    void progress(qint64 value, qint64 max);
+    void finished(const QString &error);
+private slots:
+    void setDownloadProgression(QIODevice *destination, qint64 bytesReceived, qint64 bytesTotal);
+    void downloadEnd(QIODevice *destination, const QString &error);
+private:
+    bool unzipPackage(QIODevice *destination, const QDir &dir);
+    bool installPackage(const QDir &dir);
+    const FFNxInstallation &_installation;
+    QMap<QIODevice *, GetUrl *> _getUrls;
+};

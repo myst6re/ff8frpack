@@ -15,38 +15,35 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
-#include <QLibraryInfo>
+#pragma once
 
-#include "ffnxinstallation.h"
-#include "window.h"
-#include "wizard.h"
+#include <QList>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QObject>
+#include <QSslError>
+#include <QIODevice>
 
-int main(int argc, char *argv[])
+class QNetworkAccessManager;
+
+class GetUrl : public QObject
 {
-    QApplication a(argc, argv);
+    Q_OBJECT
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }
-
-    FFNxInstallation ffnxInstallation = FFNxInstallation::localInstallation();
-    if (true || !ffnxInstallation.isValid()) {
-        Wizard w;
-        w.show();
-
-        return a.exec();
-    }
-
-    Window w(ffnxInstallation);
-    w.show();
-
-    return a.exec();
-}
+public:
+    explicit GetUrl(QObject *parent = nullptr);
+    bool startDownloadFile(const QUrl &url, QIODevice *destination);
+signals:
+    void finished(QIODevice *destination, const QString &error);
+    void downloadProgress(QIODevice *destination, qint64 bytesReceived, qint64 bytesTotal);
+private slots:
+    void downloadReadyRead();
+    void downloadSuccess();
+    void downloadError(QNetworkReply::NetworkError code);
+    void downloadSslErrors(const QList<QSslError> &errors);
+private:
+    QNetworkAccessManager _networkAccess;
+    QNetworkReply *_downloadReply;
+    QIODevice *_destination;
+};

@@ -19,28 +19,29 @@
 
 #include <QWizardPage>
 
+#include "../ffnxinstallation.h"
 #include "../installprogression.h"
 
+class QLabel;
 class QProgressBar;
 
-class WizardPageInstall : public QWizardPage, public InstallProgression
+class WizardPageInstall : public QWizardPage
 {
     Q_OBJECT
 public:
     WizardPageInstall(QWidget *parent = nullptr);
     void initializePage() override;
     bool isComplete() const override;
-    bool observerWasCanceled() const override;
-    void setObserverMaximum(int max) override;
-    void setObserverValue(int value) override;
-    void setObserverMessage(const QString &message) override;
-    bool observerRetry(const QString &message) override;
 private slots:
     void processEvents();
+    void setProgression(qint64 value, qint64 max);
+    void setFinished(const QString &error);
 private:
     QProgressBar *_progressBar;
+    QLabel *_label;
     QTimer *_timer;
-    int _max, _value;
+    qint64 _max, _value;
     bool _isComplete;
     QString _message;
+    FFNxInstallation _installation;
 };

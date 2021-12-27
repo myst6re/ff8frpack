@@ -2,6 +2,51 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
+    <name>GetUrl</name>
+    <message>
+        <source>Error occurred</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SSL Error occurred</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>FF8 Standard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FF8 Demo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FF8 Steam</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FF8 Remaster</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FF8 custom</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UnZip</name>
+    <message>
+        <source>Input device not set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot create &quot;%1&quot; directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Window</name>
     <message>
         <source>Auto (recommended)</source>
@@ -94,10 +139,6 @@
     </message>
     <message>
         <source>Installation in progress...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Installation Error</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
