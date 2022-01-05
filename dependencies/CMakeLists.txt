@@ -1,5 +1,5 @@
 ###############################################################################
-## Copyright (C) 2021 Arzel Jérôme <myst6re@gmail.com>
+## Copyright (C) 2022 Arzel Jérôme <myst6re@gmail.com>
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@ include(FetchContent)
 FetchContent_Declare(
     tomlplusplus
     GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-    GIT_TAG        v2.5.0
+    GIT_TAG        v3.0.1
 )
-FetchContent_MakeAvailable(tomlplusplus)
+FetchContent_GetProperties(tomlplusplus)
+if(NOT tomlplusplus_POPULATED)
+  FetchContent_Populate(tomlplusplus)
+  add_subdirectory(${tomlplusplus_SOURCE_DIR} ${tomlplusplus_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()

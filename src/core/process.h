@@ -15,29 +15,21 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
+#pragma once
 
-#include "window.h"
+#include <QString>
+#include <QStringList>
 
-int main(int argc, char *argv[])
+class Process
 {
-    QApplication a(argc, argv);
-    QApplication::setApplicationName(APPLICATION_NAME);
-    QApplication::setApplicationVersion(APPLICATION_VERSION);
+public:
+    enum ExecuteStatus {
+        Ok,
+        Error,
+        NotStarted,
+        Crashed,
+        Cancelled
+    };
+    static ExecuteStatus executeElevated(const QString &program, const QStringList &arguments = {});
+};
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }
-
-    Window w;
-    w.show();
-
-    return a.exec();
-}

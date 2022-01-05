@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
-    <name>Window</name>
+    <name>ConfigPage</name>
     <message>
         <source>Auto (recommended)</source>
         <translation type="unfinished"></translation>
@@ -60,66 +60,93 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ErrorPage</name>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FF8Installation</name>
+    <message>
+        <source>FF8 Standard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FF8 Demo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FF8 Steam</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FF8 Remaster</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FFNxConfig</name>
+    <message>
+        <source>The file &quot;%1&quot; does not exist</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Window</name>
+    <message>
         <source>An error occured when parsing the FFNx.toml file:
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unknown</source>
+        <source>FF8 Installation:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>An error occured when save the FFNx.toml file:
+        <source>Patch the game</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FF8 Installation directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set path...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (manual)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occured when saving the FFNx.toml file:
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Wizard</name>
     <message>
-        <source>Install</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>WizardPageInstall</name>
-    <message>
-        <source>Installation</source>
+        <source>Cannot patch the game, maybe you don&apos;t have enough permission</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Installation in progress...</source>
+        <source>Patching cancelled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Installation Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>WizardPageIntro</name>
-    <message>
-        <source>Installation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Final Fantasy VIII directory:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Choose Final Fantasy VIII installation directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wrong path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please set an existing directory where Final Fantasy VIII is installed</source>
+        <source>Unpatch the game</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

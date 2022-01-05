@@ -1,6 +1,6 @@
 /****************************************************************************
  ** FF8frPack FF8.fr Pack configurator and installer
- ** Copyright (C) 2021 Arzel Jérôme <myst6re@gmail.com>
+ ** Copyright (C) 2022 Arzel Jérôme <myst6re@gmail.com>
  **
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -24,12 +24,25 @@
 FFNxInstallation::FFNxInstallation(const QString &dirName) :
     _dirName(dirName)
 {
+}
 
+QString FFNxInstallation::patcherFileName() const
+{
+#ifdef Q_OS_WIN32
+    return QString("%1/%2").arg(_dirName, "FF8frPackPatcher.exe");
+#else
+    return QString("%1/%2").arg(_dirName, "FF8frPackPatcher");
+#endif
 }
 
 QString FFNxInstallation::configFileName() const
 {
     return QString("%1/FFNx.toml").arg(_dirName);
+}
+
+QString FFNxInstallation::installedFlagFileName() const
+{
+    return QString("%1/FF8frPack.installed").arg(_dirName);
 }
 
 const QString &FFNxInstallation::dirName() const
@@ -42,39 +55,12 @@ bool FFNxInstallation::isValid() const
     return QFile::exists(configFileName());
 }
 
-bool FFNxInstallation::provision(InstallProgression *progression) const
+bool FFNxInstallation::isEnabled() const
 {
-    if (nullptr != progression) {
-        progression->setObserverMaximum(100);
-    }
-
-    if (nullptr != progression) {
-        progression->setObserverValue(100);
-    }
-
-    return false;
+    return QFile::exists(configFileName());
 }
 
-FFNxInstallation FFNxInstallation::localInstallation()
+FFNxInstallation FFNxInstallation::fromFF8Installation(const FF8Installation &ff8Installation)
 {
-    FFNxInstallation currentDir(QCoreApplication::applicationDirPath());
-
-    if (currentDir.isValid()) {
-        return currentDir;
-    }
-
-    FFNxInstallation parentDir(QString("%1/..").arg(QCoreApplication::applicationDirPath()));
-
-    if (parentDir.isValid()) {
-        return parentDir;
-    }
-
-    return currentDir;
-}
-
-FFNxInstallation FFNxInstallation::autoDetectInstallation()
-{
-    // TODO: from regedit, from stream, etc...
-
-    return localInstallation();
+    return FFNxInstallation(ff8Installation.appPath());
 }

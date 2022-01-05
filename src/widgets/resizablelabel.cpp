@@ -15,29 +15,44 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
+#include "resizablelabel.h"
 
-#include "window.h"
-
-int main(int argc, char *argv[])
+ResizableLabel::ResizableLabel(QWidget *parent) :
+    QLabel(parent)
 {
-    QApplication a(argc, argv);
-    QApplication::setApplicationName(APPLICATION_NAME);
-    QApplication::setApplicationVersion(APPLICATION_VERSION);
+}
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
+void ResizableLabel::setPixmap(const QPixmap &pixmap)
+{
+    _background = pixmap;
+
+    drawBackground();
+}
+
+void ResizableLabel::drawBackground()
+{
+    QSize contentsSize = contentsRect().size();
+
+    if (_background.size() != contentsSize) {
+        QLabel::setPixmap(_background.scaled(contentsSize, Qt::KeepAspectRatioByExpanding));
+    } else {
+        QLabel::setPixmap(_background);
+    }
+}
+
+void ResizableLabel::resizeEvent(QResizeEvent *e)
+{
+    if (!_background.isNull() &&
+            (pixmap().isNull() || contentsRect().size() != pixmap().size())) {
+        setUpdatesEnabled(false);
+        drawBackground(); // Call setPixmap() -> update() which must be prevented
+        setUpdatesEnabled(true);
     }
 
-    Window w;
-    w.show();
+    QLabel::resizeEvent(e);
+}
 
-    return a.exec();
+QSize ResizableLabel::minimumSizeHint() const
+{
+    return QSize(0, 0);
 }

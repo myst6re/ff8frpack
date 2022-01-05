@@ -17,56 +17,29 @@
  ****************************************************************************/
 #pragma once
 
-#include <QList>
+#include <QIcon>
+#include <QVariant>
 #include <QWidget>
 
-#include "core/ff8installation.h"
-#include "core/ffnxconfig.h"
-
-class ConfigPage;
-class ErrorPage;
-class FlatComboBox;
-class HelpWidget;
 class QComboBox;
-class QDialogButtonBox;
 class QLabel;
-class QPushButton;
 class QStackedLayout;
-class ResizableLabel;
-class WelcomePage;
 
-class Window : public QWidget
+class FlatComboBox : public QWidget
 {
     Q_OBJECT
-
-    enum Page {
-        Default = 0,
-        Error
-    };
-
 public:
-    Window(QWidget *parent = nullptr);
-public slots:
-    void reset();
-    void save();
-    void customiseFF8Installation();
-    void patchFF8Installation();
-    void setCurrentInstallation(int index);
-    void closeError();
+    explicit FlatComboBox(QWidget *parent = nullptr);
+    void addItem(const QIcon &icon, const QString &text, const QVariant &userData);
+    QVariant currentData() const;
+    void setDefaultText(const QIcon &defaultIcon, const QString &defaultText);
+signals:
+    void currentIndexChanged(int index);
 private:
-    void load();
-    void showError(const QString &errorStr);
-
-    WelcomePage *_welcomePage;
-    ConfigPage *_configPage;
-    ErrorPage *_errorPage;
-
-    ResizableLabel *_image;
-    QPushButton *_provisionButton;
-
-    FlatComboBox *_currentInstallation;
-    QStackedLayout *_stackedLayout;
-
-    QList<FF8Installation> _installations;
-    FFNxConfig _config;
+    void updateFrame();
+    QString _defaultText;
+    QIcon _defaultIcon;
+    QStackedLayout *_layout;
+    QComboBox *_comboBox;
+    QLabel *_icon, *_label;
 };

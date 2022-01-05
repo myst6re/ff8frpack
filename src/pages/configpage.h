@@ -1,6 +1,6 @@
 /****************************************************************************
  ** FF8frPack FF8.fr Pack configurator and installer
- ** Copyright (C) 2021 Arzel Jérôme <myst6re@gmail.com>
+ ** Copyright (C) 2022 Arzel Jérôme <myst6re@gmail.com>
  **
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -17,24 +17,29 @@
  ****************************************************************************/
 #pragma once
 
-#include <QWizardPage>
+#include <QWidget>
 
-#include "../ffnxinstallation.h"
+#include "../core/ffnxconfig.h"
 
-class QLineEdit;
+class QComboBox;
+class QDialogButtonBox;
 
-class WizardPageIntro : public QWizardPage
+class ConfigPage : public QWidget
 {
     Q_OBJECT
 public:
-    WizardPageIntro(const FFNxInstallation &installation, QWidget *parent = nullptr);
-    void initializePage() override;
-    bool validatePage() override;
-private slots:
-    void chooseFile();
+    ConfigPage(QWidget *parent = nullptr);
+    void load(const FFNxConfig &config);
+    void save(FFNxConfig &config) const;
+signals:
+    void saveClicked();
+    void resetClicked();
+public slots:
+    void restoreDefaults();
 private:
-    const FFNxInstallation &_installation;
-
-    QLineEdit *_lineEdit;
+    QDialogButtonBox *_buttonBox;
+    QComboBox *_rendering;
+    QComboBox *_fullscreen;
+    QComboBox *_highResFont;
+    QComboBox *_externalMusic;
 };
-

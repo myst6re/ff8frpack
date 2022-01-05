@@ -1,6 +1,6 @@
 /****************************************************************************
  ** FF8frPack FF8.fr Pack configurator and installer
- ** Copyright (C) 2021 Arzel Jérôme <myst6re@gmail.com>
+ ** Copyright (C) 2022 Arzel Jérôme <myst6re@gmail.com>
  **
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -15,32 +15,10 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#pragma once
+#include "welcomepage.h"
 
-#include <QWizardPage>
-
-#include "../installprogression.h"
-
-class QProgressBar;
-
-class WizardPageInstall : public QWizardPage, public InstallProgression
+WelcomePage::WelcomePage(QWidget *parent)
+    : QWidget{parent}
 {
-    Q_OBJECT
-public:
-    WizardPageInstall(QWidget *parent = nullptr);
-    void initializePage() override;
-    bool isComplete() const override;
-    bool observerWasCanceled() const override;
-    void setObserverMaximum(int max) override;
-    void setObserverValue(int value) override;
-    void setObserverMessage(const QString &message) override;
-    bool observerRetry(const QString &message) override;
-private slots:
-    void processEvents();
-private:
-    QProgressBar *_progressBar;
-    QTimer *_timer;
-    int _max, _value;
-    bool _isComplete;
-    QString _message;
-};
+
+}

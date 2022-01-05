@@ -2,18 +2,20 @@
 
 #include <QString>
 
-#include "installprogression.h"
+#include "ff8installation.h"
 
 class FFNxInstallation
 {
 public:
     explicit FFNxInstallation(const QString &dirName);
+    QString patcherFileName() const;
     QString configFileName() const;
+    QString installedFlagFileName() const;
     const QString &dirName() const;
     bool isValid() const;
-    bool provision(InstallProgression *progression = nullptr) const;
+    bool isEnabled() const;
     static FFNxInstallation localInstallation();
-    static FFNxInstallation autoDetectInstallation();
+    static FFNxInstallation fromFF8Installation(const FF8Installation &ff8Installation);
 private:
     QString _dirName;
 };

@@ -1,0 +1,47 @@
+set(_target_file_dir "@_target_file_dir@")
+set(_target_file_name "@_target_file_name@")
+set(_qt_translations_dir "@_qt_translations_dir@")
+set(_qt_bin_dir "@_qt_bin_dir@")
+set(CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@")
+set(LANGS "@LANGS@")
+
+if(CPACK_TEMPORARY_INSTALL_DIRECTORY)
+    set(_target_file_dir "${CPACK_TEMPORARY_INSTALL_DIRECTORY}/packages/FF8frPackComponent/data")
+endif()
+
+if(_target_file_dir STREQUAL "" OR _target_file_name STREQUAL "")
+    message(FATAL_ERROR "Not target specified for Qt deployment")
+    return()
+endif()
+
+if(APPLE)
+    set(DEPLOYQT_NAME mac)
+    set(DEPLOYQT_ARGS)
+elseif(WIN32)
+    set(DEPLOYQT_NAME win)
+    list(JOIN LANGS "," QT_LANGS)
+    set(DEPLOYQT_ARGS --no-quick-import --no-opengl-sw --no-compiler-runtime --no-system-d3d-compiler --no-svg --translations ${QT_LANGS})
+
+    if("${CMAKE_BUILD_TYPE}" MATCHES "Release")
+        set(DEPLOYQT_ARGS ${DEPLOYQT_ARGS} --release)
+    endif()
+endif()
+
+if(APPLE OR WIN32)
+    find_program(DEPLOYQT_EXECUTABLE "${DEPLOYQT_NAME}deployqt" HINTS "${_qt_bin_dir}")
+    message("Running ${DEPLOYQT_EXECUTABLE} for target \"${_target_file_dir}/${_target_file_name}\"...")
+    execute_process(
+        COMMAND "${DEPLOYQT_EXECUTABLE}" ${DEPLOYQT_ARGS} "${_target_file_dir}/${_target_file_name}"
+        RESULT_VARIABLE ret
+    )
+
+    if(NOT ret EQUAL "0")
+        message(FATAL_ERROR "${DEPLOYQT_EXECUTABLE} returns ${ret}")
+    endif()
+endif()
+
+if(APPLE)
+    # Translations are not installed by macdeployqt script
+    list(TRANSFORM LANGS REPLACE ".+" "${_qt_translations_dir}/qt_\\0.qm" OUTPUT_VARIABLE QT_QM_FILES)
+    file(COPY ${QT_QM_FILES} DESTINATION "${_target_file_dir}/${_target_file_name}/Contents/Resources")
+endif()

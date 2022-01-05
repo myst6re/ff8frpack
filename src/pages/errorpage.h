@@ -1,6 +1,6 @@
 /****************************************************************************
  ** FF8frPack FF8.fr Pack configurator and installer
- ** Copyright (C) 2021 Arzel Jérôme <myst6re@gmail.com>
+ ** Copyright (C) 2022 Arzel Jérôme <myst6re@gmail.com>
  **
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -15,17 +15,20 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include "wizard.h"
+#pragma once
 
-#include "wizardpages/wizardpageintro.h"
-#include "wizardpages/wizardpageinstall.h"
+#include <QWidget>
 
-Wizard::Wizard(const FFNxInstallation &installation, QWidget *parent)
-    : QWizard(parent), _installation(installation)
+class HelpWidget;
+
+class ErrorPage : public QWidget
 {
-    setWindowTitle("FF8.Fr's Pack");
-    setPage(PageIntro, new WizardPageIntro(installation, this));
-    setPage(PageInstall, new WizardPageInstall(this));
-    setOptions(options() | QWizard::NoBackButtonOnStartPage | QWizard::NoBackButtonOnLastPage);
-    setButtonText(QWizard::CommitButton, tr("Install"));
-}
+    Q_OBJECT
+public:
+    explicit ErrorPage(int iconSize, QWidget *parent = nullptr);
+    void setText(const QString &text);
+signals:
+    void closeClicked();
+private:
+    HelpWidget *_helpWidget;
+};

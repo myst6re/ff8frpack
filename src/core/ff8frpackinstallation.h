@@ -1,6 +1,6 @@
 /****************************************************************************
  ** FF8frPack FF8.fr Pack configurator and installer
- ** Copyright (C) 2021 Arzel Jérôme <myst6re@gmail.com>
+ ** Copyright (C) 2022 Arzel Jérôme <myst6re@gmail.com>
  **
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -17,42 +17,16 @@
  ****************************************************************************/
 #pragma once
 
-#define TOML_EXCEPTIONS 0
-#include <toml++/toml.h>
 #include <QString>
 
-class FFNxConfig
+class FF8frPackInstallation
 {
 public:
-    enum Renderer {
-        RendererAuto = 0,
-        OpenGL,
-        Direct3D9,
-        Direct3D11,
-        Direct3D12,
-        Vulkan
-    };
-
-    FFNxConfig();
-    explicit FFNxConfig(const QString &fileName);
-    bool load();
-    bool save();
-    inline QString fileName() const {
-        return _fileName;
-    }
-    inline void setFileName(const QString &fileName) {
-        _fileName = fileName;
-    }
-    inline QString errorString() const {
-        return _lastError;
-    }
-    Renderer renderer(bool &ok) const;
-    void setRenderer(Renderer renderer);
-    bool isFullscreen() const;
-    void setFullscreen(bool fullscreen);
-    bool isExternalMusicEnabled() const;
-    void setExternalMusicEnabled(bool enabled);
+    explicit FF8frPackInstallation(const QString &dirName);
+    const QString &dirName() const;
+    QString ffnxDirName() const;
+    QString patcherFileName() const;
+    static FF8frPackInstallation localInstallation();
 private:
-    QString _fileName, _lastError;
-    toml::table _config;
+    QString _dirName;
 };
