@@ -15,29 +15,35 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
+#include "errorpage.h"
 
-#include "window.h"
+#include <QPushButton>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
 
-int main(int argc, char *argv[])
+#include "../widgets/helpwidget.h"
+
+ErrorPage::ErrorPage(int iconSize, QWidget *parent)
+    : QWidget{parent}
 {
-    QApplication a(argc, argv);
-    QApplication::setApplicationName(APPLICATION_NAME);
-    QApplication::setApplicationVersion(APPLICATION_VERSION);
+    _helpWidget = new HelpWidget(iconSize,
+                                            QString(),
+                                            HelpWidget::IconWarning,
+                                            this);
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(
+                QDialogButtonBox::Close,
+                this);
+    buttonBox->button(QDialogButtonBox::Close)->setText(tr("Back"));
 
-    Window w;
-    w.show();
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(_helpWidget);
+    layout->addWidget(buttonBox);
 
-    return a.exec();
+    connect(buttonBox, &QDialogButtonBox::clicked, this, &ErrorPage::closeClicked);
+}
+
+void ErrorPage::setText(const QString &text)
+{
+    _helpWidget->setText(text);
 }

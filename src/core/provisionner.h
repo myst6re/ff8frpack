@@ -15,29 +15,31 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
+#pragma once
 
-#include "window.h"
+#include <QObject>
+#include <QString>
+#include <QStringList>
 
-int main(int argc, char *argv[])
+#include "ff8frpackinstallation.h"
+
+class Provisionner : public QObject
 {
-    QApplication a(argc, argv);
-    QApplication::setApplicationName(APPLICATION_NAME);
-    QApplication::setApplicationVersion(APPLICATION_VERSION);
+    Q_OBJECT
+public:
+    explicit Provisionner(const FF8frPackInstallation &ff8frPackInstallation, const QString &ff8DirName);
+    bool provision() const;
+    bool isProvisionned() const;
+    bool unprovision() const;
+signals:
+    void progress(qsizetype progression, qsizetype max);
+private:
+    bool copyDirectory(const QString &sourceDirName, const QString &destinationDirName) const;
+    bool backupFiles(const QStringList &names) const;
+    bool unbackupFiles(const QStringList &names) const;
+    bool touchFile(const QString &fileName) const;
+    bool copyFile(const QString &sourceFileName, const QString &destinationFileName) const;
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }
-
-    Window w;
-    w.show();
-
-    return a.exec();
-}
+    FF8frPackInstallation _ff8frPackInstallation;
+    QString _ff8DirName;
+};

@@ -1,5 +1,5 @@
 ###############################################################################
-## Copyright (C) 2021 Arzel Jérôme <myst6re@gmail.com>
+## Copyright (C) 2022 Arzel Jérôme <myst6re@gmail.com>
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -105,4 +105,7 @@ endif()
 message("-- QT_QMAKE_EXECUTABLE: ${QT_QMAKE_EXECUTABLE}")
 get_filename_component(_qt_bin_dir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
 get_filename_component(_qt_dir "${_qt_bin_dir}" DIRECTORY)
+get_filename_component(QTDIR "${_qt_dir}" DIRECTORY)
+get_filename_component(QTDIR "${QTDIR}" DIRECTORY)
+set(_qt_tools "${QTDIR}/Tools")
 set(_qt_translations_dir "${_qt_dir}/translations")

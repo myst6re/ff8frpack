@@ -15,29 +15,26 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
+#pragma once
 
-#include "window.h"
+#include <QCommandLineParser>
 
-int main(int argc, char *argv[])
+#define PATCHER_ADD_ARG(names, description, valueName, defaultValue) \
+    _parser.addOption(QCommandLineOption(names, description, valueName, defaultValue))
+
+#define PATCHER_ADD_FLAG(names, description) \
+    _parser.addOption(QCommandLineOption(names, description))
+
+#define PATCHER_OPT_NAMES(shortName, fullName) \
+    (QStringList() << shortName << fullName)
+
+class HelpArguments
 {
-    QApplication a(argc, argv);
-    QApplication::setApplicationName(APPLICATION_NAME);
-    QApplication::setApplicationVersion(APPLICATION_VERSION);
+public:
+    HelpArguments();
+    [[ noreturn ]] void showHelp(int exitCode = EXIT_SUCCESS);
+    bool help() const;
+protected:
+    QCommandLineParser _parser;
+};
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }
-
-    Window w;
-    w.show();
-
-    return a.exec();
-}

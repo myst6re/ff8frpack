@@ -1,6 +1,6 @@
 /****************************************************************************
  ** FF8frPack FF8.fr Pack configurator and installer
- ** Copyright (C) 2021 Arzel Jérôme <myst6re@gmail.com>
+ ** Copyright (C) 2022 Arzel Jérôme <myst6re@gmail.com>
  **
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
  ****************************************************************************/
 #include "ffnxconfig.h"
 
+#include <QCoreApplication>
 #include <QFile>
 #include <sstream>
 
@@ -24,26 +25,35 @@ constexpr const char *CFG_FULLSCREEN = "fullscreen";
 constexpr const char *CFG_USE_EXTERNAL_MUSIC = "use_external_music";
 constexpr const char *CFG_RENDERER_BACKEND = "renderer_backend";
 
-FFNxConfig::FFNxConfig()
+FFNxConfig::FFNxConfig() :
+    _isLoaded(false)
 {
 }
 
 FFNxConfig::FFNxConfig(const QString &fileName) :
-    _fileName(fileName)
+    _fileName(fileName), _isLoaded(false)
 {
-
 }
 
 bool FFNxConfig::load()
 {
+    _isLoaded = false;
+
+    if (! QFile::exists(_fileName)) {
+        _lastError = qApp->translate("FFNxConfig", "The file \"%1\" does not exist")
+                .arg(_fileName);
+        return false;
+    }
+
     const toml::parse_result result = toml::parse_file(_fileName.toStdString());
 
-    if (!result) {
+    if (! result) {
         _lastError = QString::fromStdString(std::string{result.error().description()});
         return false;
     }
 
     _config = std::move(result).table();
+    _isLoaded = true;
 
     return true;
 }

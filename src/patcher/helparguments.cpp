@@ -15,29 +15,25 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
+#include "helparguments.h"
 
-#include "window.h"
+#include <QFileInfo>
+#include <QRegularExpression>
 
-int main(int argc, char *argv[])
+HelpArguments::HelpArguments()
 {
-    QApplication a(argc, argv);
-    QApplication::setApplicationName(APPLICATION_NAME);
-    QApplication::setApplicationVersion(APPLICATION_VERSION);
+    PATCHER_ADD_FLAG(PATCHER_OPT_NAMES("h", "help"), "Displays help.");
+}
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }
+bool HelpArguments::help() const
+{
+    return _parser.isSet("help");
+}
 
-    Window w;
-    w.show();
-
-    return a.exec();
+[[ noreturn ]] void HelpArguments::showHelp(int exitCode)
+{
+    QRegularExpression usage("Usage: .* \\[options\\]");
+    qInfo("%s", qPrintable(_parser.helpText().replace(usage, "Usage: %1 [options]")
+                         .arg(QFileInfo(qApp->arguments().first()).fileName())));
+    ::exit(exitCode);
 }

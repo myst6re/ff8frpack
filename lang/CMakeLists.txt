@@ -1,5 +1,5 @@
 ###############################################################################
-## Copyright (C) 2021 Arzel Jérôme <myst6re@gmail.com>
+## Copyright (C) 2022 Arzel Jérôme <myst6re@gmail.com>
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR}/src ${TS_FILES} OPTIONS -loca
 add_custom_target(translations ALL DEPENDS ${QM_FILES})
 
 # Make it available for other CMakelists files
-set(TRANSLATIONS_PATH translations CACHE INTERNAL "")
+if(APPLE)
+    set(TRANSLATIONS_PATH "FF8Fr Pack.app/Contents/Resources" CACHE INTERNAL "")
+else()
+    set(TRANSLATIONS_PATH translations CACHE INTERNAL "")
+endif()
 set(QM_FILES ${QM_FILES} CACHE INTERNAL "")
 
 install(FILES ${QM_FILES} DESTINATION "${TRANSLATIONS_PATH}")

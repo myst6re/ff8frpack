@@ -1,6 +1,6 @@
 /****************************************************************************
  ** FF8frPack FF8.fr Pack configurator and installer
- ** Copyright (C) 2021 Arzel Jérôme <myst6re@gmail.com>
+ ** Copyright (C) 2022 Arzel Jérôme <myst6re@gmail.com>
  **
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -17,36 +17,14 @@
  ****************************************************************************/
 #pragma once
 
-#include <QWizard>
+#include <QWidget>
 
-#include "ffnxinstallation.h"
-
-#define FIELD_NAME_private(field) \
-    #field
-
-#define FIELD_NAME(field) \
-    FIELD_NAME_private(Wizard::field)
-
-#define MANDATORY_FIELD(field) \
-    FIELD_NAME(field)"*"
-
-class Wizard : public QWizard
+class WelcomePage : public QWidget
 {
     Q_OBJECT
 public:
-    enum {
-        PageIntro,
-        PageInstall
-    };
-    enum Field {
-        FieldPath,
-    };
-
-    explicit Wizard(const FFNxInstallation &installation, QWidget *parent = nullptr);
+    explicit WelcomePage(QWidget *parent = nullptr);
 
 signals:
 
-private:
-    const FFNxInstallation &_installation;
 };
-

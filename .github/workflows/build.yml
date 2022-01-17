@@ -15,20 +15,19 @@ jobs:
       fail-fast: false
       matrix:
         qt:
-          - 6.2.0
+          - 6.2.2
         os:
           - windows-latest
         build_type:
           - Release
         include:
         - aqt_version: '==2.0.0'
-          qt_tools: desktop,tools_ninja,qt.tools.ninja
         - os: windows-latest
-          package_extension: 'zip'
-          package_suffix: 'win64'
-          win_arch: "x64"
+          package_extension: exe
+          package_suffix: win64
+          win_arch: x64
           qt_arch: win64_msvc2019_64
-          qt_tools: desktop,tools_ninja,qt.tools.ninja desktop,tools_cmake,qt.tools.cmake.win64
+          qt_tools: desktop,tools_ninja,qt.tools.ninja desktop,tools_cmake,qt.tools.cmake.win64 desktop,tools_ifw,qt.tools.ifw.42
     env:
       qt_installation_path: ${{ github.workspace }}
       ff8frpack_build_path: ${{ github.workspace }}/../build-ff8frpack
@@ -70,6 +69,7 @@ jobs:
         QT_DIR=$(eval 'echo $Qt'"$QT_MAJOR_VERSION"'_DIR')
         echo "$IQTA_TOOLS/Ninja" >> $GITHUB_PATH
         echo "$IQTA_TOOLS/CMake_64/bin" >> $GITHUB_PATH
+        echo "$IQTA_TOOLS/QtInstallerFramework/4.2/bin" >> $GITHUB_PATH
         echo "QT_MAJOR_VERSION=$QT_MAJOR_VERSION" >> $GITHUB_ENV
         echo "QT_DIR=$QT_DIR" >> $GITHUB_ENV
 
@@ -77,15 +77,11 @@ jobs:
       id: main_build
       run: |
         cmake -B ${{ env.ff8frpack_build_path }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_INSTALL_PREFIX=${{ env.ff8frpack_installation_path }}
-        cmake --build ${{ env.ff8frpack_build_path }} --target install -j3
-
-    - name: CPack
-      run: cpack
-      working-directory: ${{ env.ff8frpack_build_path }}
+        cmake --build ${{ env.ff8frpack_build_path }} --target package -j3
 
     - name: Prepare Upload
       shell: bash
-      run: mv ../build-ff8frpack/*.${{ matrix.package_extension }} ff8frpack-continuous-${{ matrix.package_suffix }}.${{ matrix.package_extension }}
+      run: mv ../build-ff8frpack/FF8frPack-*-${{ matrix.package_suffix }}.${{ matrix.package_extension }} ff8frpack-continuous-${{ matrix.package_suffix }}.${{ matrix.package_extension }}
 
     - name: Upload
       uses: actions/upload-artifact@v2

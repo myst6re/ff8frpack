@@ -15,29 +15,22 @@
  ** You should have received a copy of the GNU General Public License
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
+#pragma once
 
-#include "window.h"
+#include <QLabel>
+#include <QSize>
 
-int main(int argc, char *argv[])
+class ResizableLabel : public QLabel
 {
-    QApplication a(argc, argv);
-    QApplication::setApplicationName(APPLICATION_NAME);
-    QApplication::setApplicationVersion(APPLICATION_VERSION);
+    Q_OBJECT
+public:
+    ResizableLabel(QWidget *parent = nullptr);
+    void setPixmap(const QPixmap &pixmap);
+protected:
+    void resizeEvent(QResizeEvent *e) override;
+    QSize minimumSizeHint() const override;
+private:
+    void drawBackground();
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        if (translator.load(QLocale(locale), "FF8frPack", "_", ":/i18n/")) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }
-
-    Window w;
-    w.show();
-
-    return a.exec();
-}
+    QPixmap _background;
+};
